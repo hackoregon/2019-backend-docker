@@ -20,7 +20,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'rest_framework',
-    'rest_framework_gis',
     'rest_framework_swagger'
 ]
 
@@ -84,6 +83,8 @@ LOGGING = {
 
 #add CORS support for all domains
 CORS_ORIGIN_ALLOW_ALL = True
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 try:
     from local_settings.settings import *

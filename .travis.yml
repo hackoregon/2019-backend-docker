@@ -1,0 +1,21 @@
+sudo: required
+services:
+  - docker
+
+before_script:
+  - docker pull hackoregoncivic/backend-docker-django-dev || true
+
+script:
+  - docker-compose build
+
+after_script:
+  - docker images
+
+before_deploy:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+
+deploy:
+  provider: script
+  script: docker push hackoregoncivic/backend-docker-django-dev
+  on:
+    branch: test-deploy

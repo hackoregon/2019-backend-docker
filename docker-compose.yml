@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: hackoregoncivic/backend-docker-django-dev
-    command: ./bin/development-docker-entrypoint.sh
+    command: ./bin/docker-entrypoint.sh
     volumes:
       - .:/code
     ports:

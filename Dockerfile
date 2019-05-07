@@ -30,6 +30,8 @@ RUN pip install -r common.txt
 
 RUN python
 COPY manage.py /code/
+COPY gunicorn_conf.py /code/
 COPY backend /code/backend
+COPY bin /code/bin
 
-ENTRYPOINT [ "/code/bin/development-docker-entrypoint.sh" ]
+ENTRYPOINT [ "/code/bin/docker-entrypoint.sh" ]

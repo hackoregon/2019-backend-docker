@@ -12,15 +12,16 @@ volunteers, and all the work we do is open source.
 ## Features
 
 * Provide a base Django Rest Framework Application using Python 3+/Django2+
-* Include preconfiguration fo CORS headers and whitenoise for static asset hosting
+* Include pre-configuration for CORS headers and whitenoise for static asset hosting
 * Provide support to connecting to a PostgreSQL 11 and PostGIS/GeoDjango
 * Provide a Database Router for connecting to multiple DATABASES
-* Provide a standardized method for maintaining/updating core Hack Oregon AgPWIGSec
+* Provide a standardized method for maintaining/updating core Hack Oregon dependencies/settings
 * Published to Docker Hub through Travis CI/CD pipeline
+* Gunicorn server with configuration file
 
 ## Getting Started
 
-Hack Oregon Projects will make use of this image via the Dockerfile provided in the 2019-backend-cookiecutter-django repository and will generally not interact with this repo directly. Full setup steps will be in the mentioned repo.
+Hack Oregon Projects will make use of this image via the Dockerfile provided in the [2019-backend-cookiecutter-django](https://github.com/hackoregon/2019-backend-cookiecutter-django) repository and will generally not interact with this repo directly. Full setup steps will be in the mentioned repo.
 
 ### For uses outside of Hack Oregon:
 
@@ -52,10 +53,10 @@ COPY bin /code/bin/
 RUN chmod +x *.py
 
 ## run your entrypoint file
-ENTRYPOINT [ "/code/bin/development-docker-entrypoi
+ENTRYPOINT [ "/code/bin/development-docker-entrypoint.sh" ]
 ```
 
-2. Create a .env file in root folder to pass in environment variables.  
+2. Create a .env file in root folder to pass in environment variables.  Currently the application is set to use a "DEBUG" variable to move from development mode vs. production. It is also setup to use a postgis driver instead of sqlite3, so will require database credentials
 
 Example:
 ```
@@ -67,4 +68,140 @@ POSTGRES_PASSWORD=Z6mHewT5He75
 DJANGO_SECRET_KEY=h0ldon2th3nighT
 ```
 
-3.
+3. Create a local_settings folder which will contain 3 files: `settings.py`, `urls.py`, and `gunicorn_conf.py`. These files will include any Django settings for your project, that you need to override from the default, as well as your url routes, and [gunicorn webserver configuration](http://docs.gunicorn.org/en/stable/settings.html#settings) respectively.
+
+For example, if you are working to create a local django app named `passenger_census` you would like to import, you can include you updated `INSTALLED_APPS` object in the `local_settings/settings.py` and it will be imported.
+
+```
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'corsheaders',
+    'django_filters',
+    'rest_framework',
+    'rest_framework_gis',
+    'rest_framework_swagger',
+    'passenger_census'
+]
+```
+
+And an example `urls.py`, which creates a swagger view and route for urls in package:
+
+```
+"""backend URL Configuration
+
+The `urlpatterns` list routes URLs to views. For more information please see:
+    https://docs.djangoproject.com/en/2.0/topics/http/urls/
+Examples:
+Function views
+    1. Add an import:  from my_app import views
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
+Class-based views
+    1. Add an import:  from other_app.views import Home
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
+Including another URLconf
+    1. Import the include() function: from django.urls import include, path
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+"""
+from django.conf.urls import url, include
+from django.urls import path
+from rest_framework.routers import DefaultRouter
+
+from rest_framework_swagger.views import get_swagger_view
+
+
+schema_view = get_swagger_view(title='Hack Oregon 2018 Transportation Systems APIs')
+
+urlpatterns = [
+    url(r'^transportation-systems/$', schema_view),
+    url(r'^transportation-systems/passenger-census/', include('hackoregon_transportation_systems.passenger_census.urls')),
+]
+```
+
+4. Create a requirements file for any pip requirements. Using the above Dockerfile, this would be in your project root folder, and named `requirements.txt`.
+
+5. Create a Docker Compose file to configure the Docker stack for starting up. If you are connecting to an external database, you should just need to configure the api container.
+
+Here is example file to get you started:
+
+```
+version: '3.4'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: api
+    command: ./bin/docker-entrypoint.sh
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=${PROJECT_NAME}
+      - DEBUG=True
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+```
+This will spin up a local docker image named `api`, which builds based on the provided Dockerfile, passing in the environmental variables from your .env file, and startup based on a docker-entrypoint.sh script.
+
+6. Create a bin folder, to house a `docker-entrypoint.sh` and any other startup files.
+
+7. Within bin folder, create a `docker-entrypoint.sh` file to run startup script.
+
+Example:
+
+```
+#! /bin/bash
+
+# wait-for-postgres.sh
+# https://docs.docker.com/compose/startup-order/
+
+# http://linuxcommand.org/lc3_man_pages/seth.html:
+# -e  Exit immediately if a command exits with a non-zero status.
+set -e
+
+export PGPASSWORD=$POSTGRES_PASSWORD
+until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
+do
+  >&2 echo "Postgres is unavailable - sleeping"
+  sleep 5
+done
+
+>&2 echo "Postgres is up"
+echo Debug: $DEBUG
+chmod +x *.py
+
+echo "Make migrations"
+python -Wall manage.py makemigrations
+
+echo "Migrate"
+python -Wall manage.py migrate
+
+# Collect static files
+echo "Collect static files"
+python -Wall manage.py collectstatic --noinput
+
+echo "Run server..."
+python -Wall manage.py runserver 0.0.0.0:8000
+```
+
+8. With this setup, you should be ready to startup an app.
+
+First you can build your application:
+
+```
+$ docker-compose build
+```
+
+Then start your application:
+
+```
+$ docker-compose up
+```
