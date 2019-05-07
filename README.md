@@ -205,3 +205,6 @@ Then start your application:
 ```
 $ docker-compose up
 ```
+
+
+## CI/CD with Travis
