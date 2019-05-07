@@ -16,6 +16,4 @@ before_deploy:
 
 deploy:
   provider: script
-  script: docker push hackoregoncivic/backend-docker-django-dev
-  on:
-    branch: test-deploy
+  script: bin/deploy.sh
