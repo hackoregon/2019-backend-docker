@@ -1,8 +1,11 @@
-#Django Rest Framwork
+# Django Rest Framework
 
 Django>=2.0,<3.0
 psycopg2>=2.7,<3.0
-coreapi>=1.32.0
-markdown>=2.1.0
-django-filter>=1.0.1
+django-cors-headers>=2.5.3,<3.0
+djangorestframework>=3.9.3,<4.0
+django-filter>=2.1.0,<3.0
+whitenoise>=4.1.2,<5.0
 
+# Swagger
+django-rest-swagger>=2.2.0,<3.0

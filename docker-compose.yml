@@ -1,14 +1,20 @@
-version: '3'
-
+version: '3.4'
 services:
-  db:
-    image: postgres
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hackoregoncivic/backend-docker-django-dev
+    command: ./bin/development-docker-entrypoint.sh
     volumes:
       - .:/code
     ports:
       - "8000:8000"
-    depends_on:
-      - db
+    environment:
+      - DEBUG=True
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
