@@ -7,12 +7,14 @@
 # -e  Exit immediately if a command exits with a non-zero status.
 set -e
 
-export PGPASSWORD=$POSTGRES_PASSWORD
-until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
-do
-  >&2 echo "Postgres is unavailable - sleeping"
-  sleep 5
-done
+if [[ -z "${$POSTGRES_PASSWORD}" ]]; then
+  export PGPASSWORD=$POSTGRES_PASSWORD
+  until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
+  do
+    >&2 echo "Postgres is unavailable - sleeping"
+    sleep 5
+  done
+fi
 
 >&2 echo "Postgres is up"
 echo Debug: $DEBUG

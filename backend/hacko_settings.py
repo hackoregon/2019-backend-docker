@@ -10,19 +10,19 @@ DEBUG = bool(os.environ.get('DEBUG', False))
 
 ALLOWED_HOSTS = ['*']
 
-if os.environ.get('POSTGRES_NAME'):
-    INSTALLED_APPS = [
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'corsheaders',
-        'django_filters',
-        'rest_framework',
-        'rest_framework_swagger'
-    ]
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'corsheaders',
+    'django_filters',
+    'rest_framework',
+    'rest_framework_swagger'
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,17 +53,17 @@ REST_FRAMEWORK = {
 
 DATABASE_ROUTERS = ['backend.router.ModelDatabaseRouter',]
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'NAME': os.environ.get('POSTGRES_NAME'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': os.environ.get('POSTGRES_PORT')
+if os.environ.get('POSTGRES_NAME') is not None:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+            'NAME': os.environ.get('POSTGRES_NAME'),
+            'USER': os.environ.get('POSTGRES_USER'),
+            'HOST': os.environ.get('POSTGRES_HOST'),
+            'PORT': os.environ.get('POSTGRES_PORT')
+        }
     }
-}
 
 LOGGING = {
     'version': 1,
