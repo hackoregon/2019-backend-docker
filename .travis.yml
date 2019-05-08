@@ -1,13 +1,9 @@
 sudo: required
 services:
   - docker
-  - postgresql
-addons:
-  postgresql: "11.2"
 
 before_script:
   - docker pull hackoregoncivic/backend-docker-django-dev || true
-  - psql -c 'create database backend;' -U postgres
 
 script:
   - docker-compose build
