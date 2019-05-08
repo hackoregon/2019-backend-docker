@@ -1,5 +1,9 @@
 # Hack Oregon 2019 Backend Docker - Django
 
+Staging (Development): [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=staging)](https://travis-ci.org/hackoregon/2019-backend-docker)
+
+Master (Productin): [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=master)](https://travis-ci.org/hackoregon/2019-backend-docker)
+
 This repository contains the source files for the Docker Image for the 2019 Hack Oregon Season.
 
 ## What is Hack Oregon?
