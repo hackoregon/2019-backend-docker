@@ -53,7 +53,7 @@ REST_FRAMEWORK = {
 
 DATABASE_ROUTERS = ['backend.router.ModelDatabaseRouter',]
 
-if os.environ.get('POSTGRES_NAME') is not None:
+if os.environ.get('POSTGRES_NAME'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -63,15 +63,8 @@ if os.environ.get('POSTGRES_NAME') is not None:
             'HOST': os.environ.get('POSTGRES_HOST'),
             'PORT': os.environ.get('POSTGRES_PORT')
         }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.contrib.gis.db.backends.postgis',
-            'PASSWORD':"",
-            'NAME': 'backend'
-            'USER': 'postgres',
-        }
+    }    
+
 
 LOGGING = {
     'version': 1,
@@ -96,6 +89,6 @@ CORS_ORIGIN_ALLOW_ALL = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 try:
-    from local_settings.settings import *
+    from src_files.local_settings.settings import *
 except ImportError:
     pass

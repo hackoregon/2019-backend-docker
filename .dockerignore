@@ -20,3 +20,4 @@ coverage.xml
 *,cover
 *.log
 env.sample
+**.sqlite3

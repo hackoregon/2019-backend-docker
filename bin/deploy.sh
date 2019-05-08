@@ -7,7 +7,7 @@ if [ -z "$TRAVIS_PULL_REQUEST" ] || [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     if [ "$TRAVIS_BRANCH" == "master" ]; then
       docker tag  hackoregoncivic/backend-docker-django-dev hackoregoncivic/backend-docker-django
       docker push hackoregoncivic/backend-docker-django
-    else if [ "$TRAVIS_BRANCH" == "test_deploy" ];
+    else if [ "$TRAVIS_BRANCH" == "staging" ];
       docker push hackoregoncivic/backend-docker-django-dev
     else
       echo "Skipping deploy because branch is not master or test-deploy branch"

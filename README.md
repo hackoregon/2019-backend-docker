@@ -18,6 +18,9 @@ volunteers, and all the work we do is open source.
 * Provide a standardized method for maintaining/updating core Hack Oregon dependencies/settings
 * Published to Docker Hub through Travis CI/CD pipeline
 * Gunicorn server with configuration file
+* 2 stage deploys:
+  - `staging` branch deploys to the `hackoregoncivic/backend-docker-django-dev` Dockerhub repo.
+  - `master` branch deploys to the `hackoregoncivic/backend-docker-django` Dockerhub repo.
 
 ## Getting Started
 
@@ -30,7 +33,8 @@ This repo is intended to be a base image for Django Rest Framework APIs. It's in
 1. Create your local Dockerfile. Here is an example to get you started:
 
 ```
-FROM hackoregoncivic/backend-docker-django-dev
+## Add -dev to dockername to pull from development repo
+FROM hackoregoncivic/backend-docker-django
 ENV PYTHONUNBUFFERED 1
 
 ## Moves into main directory of image
@@ -53,10 +57,10 @@ COPY bin /code/bin/
 RUN chmod +x *.py
 
 ## run your entrypoint file
-ENTRYPOINT [ "/code/bin/development-docker-entrypoint.sh" ]
+ENTRYPOINT [ "/code/bin/docker-entrypoint.sh" ]
 ```
 
-2. Create a .env file in root folder to pass in environment variables.  Currently the application is set to use a "DEBUG" variable to move from development mode vs. production. It is also setup to use a postgis driver instead of sqlite3, so will require database credentials
+2. Create a .env file in root folder to pass in environment variables.  If you add the Postgres related vars, app will use postgres, otherwise defaults to sqlite3.
 
 Example:
 ```
@@ -68,7 +72,7 @@ POSTGRES_PASSWORD=Z6mHewT5He75
 DJANGO_SECRET_KEY=h0ldon2th3nighT
 ```
 
-3. Create a local_settings folder which will contain 3 files: `settings.py`, `urls.py`, and `gunicorn_conf.py`. These files will include any Django settings for your project, that you need to override from the default, as well as your url routes, and [gunicorn webserver configuration](http://docs.gunicorn.org/en/stable/settings.html#settings) respectively.
+3. Create a local_settings folder which will contain 3 files: `settings.py`, `urls.py`, and `gunicorn_conf.py`. These files will include any Django settings for your project, that you need to override from the default, as well as your url routes, and [gunicorn webserver configuration](http://docs.gunicorn.org/en/stable/settings.html#settings) respectively. If you are just spinning up the default hello world django project, and not adding any additional url routes, omit the `urls.py` or a blank file will cause errors.
 
 For example, if you are working to create a local django app named `passenger_census` you would like to import, you can include you updated `INSTALLED_APPS` object in the `local_settings/settings.py` and it will be imported.
 
@@ -149,13 +153,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
 ```
-This will spin up a local docker image named `api`, which builds based on the provided Dockerfile, passing in the environmental variables from your .env file, and startup based on a docker-entrypoint.sh script.
+This will spin up a local docker image named `api`, which builds based on the provided Dockerfile, passing in the environmental variables from your .env file, and startup based on a `docker-entrypoint.sh` script.
 
 6. Create a bin folder, to house a `docker-entrypoint.sh` and any other startup files.
 
 7. Within bin folder, create a `docker-entrypoint.sh` file to run startup script.
 
-Example:
+Example (Please note that copy and pasting from Dockerhub may cause some of the special characters in this example to become url-encoded, which may cause issues when attempting to run. Double check the file if you run into errors.):
 
 ```
 #! /bin/bash
@@ -167,12 +171,14 @@ Example:
 # -e  Exit immediately if a command exits with a non-zero status.
 set -e
 
-export PGPASSWORD=$POSTGRES_PASSWORD
-until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
-do
-  >&2 echo "Postgres is unavailable - sleeping"
-  sleep 5
-done
+if [ "$POSTGRES_NAME" ]; then
+  export PGPASSWORD=$POSTGRES_PASSWORD
+  until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
+  do
+    >&2 echo "Postgres is unavailable - sleeping"
+    sleep 5
+  done
+fi
 
 >&2 echo "Postgres is up"
 echo Debug: $DEBUG

@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 try:
-    from local_settings.urls import *
+    from src_files.local_settings.urls import *
 except ImportError:
     urlpatterns = [
         path('admin/', admin.site.urls),
