@@ -10,18 +10,19 @@ DEBUG = bool(os.environ.get('DEBUG', False))
 
 ALLOWED_HOSTS = ['*']
 
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'corsheaders',
-    'django_filters',
-    'rest_framework',
-    'rest_framework_swagger'
-]
+if os.environ.get('POSTGRES_NAME'):
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+        'corsheaders',
+        'django_filters',
+        'rest_framework',
+        'rest_framework_swagger'
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

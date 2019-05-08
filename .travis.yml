@@ -8,7 +8,7 @@ before_script:
 script:
   - docker-compose build
   - docker-compose up
-  - - docker ps | grep -q blog
+  - - docker ps | grep -q hackoregoncivic/backend-docker-django-dev
 
 after_script:
   - docker images
