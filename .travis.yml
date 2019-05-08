@@ -17,5 +17,7 @@ before_deploy:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
 
 deploy:
-  provider: script
-  script: bin/deploy.sh
+  - provider: script
+    script: bin/deploy.sh
+    on:
+      all_branches: true
