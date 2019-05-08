@@ -64,6 +64,14 @@ if os.environ.get('POSTGRES_NAME') is not None:
             'PORT': os.environ.get('POSTGRES_PORT')
         }
     }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'PASSWORD':"",
+            'NAME': 'backend'
+            'USER': 'postgres',
+        }
 
 LOGGING = {
     'version': 1,
