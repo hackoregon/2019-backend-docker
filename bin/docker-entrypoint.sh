@@ -7,7 +7,7 @@
 # -e  Exit immediately if a command exits with a non-zero status.
 set -e
 
-if [[ -z "${$POSTGRES_PASSWORD}" ]]; then
+if [ -z "$POSTGRES_PASSWORD" ]; then
   export PGPASSWORD=$POSTGRES_PASSWORD
   until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
   do
