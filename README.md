@@ -145,6 +145,8 @@ services:
       dockerfile: Dockerfile
     image: api
     command: ./bin/docker-entrypoint.sh
+    volumes:
+      - ./src_files
     ports:
       - "8000:8000"
     environment:
@@ -217,4 +219,128 @@ $ docker-compose up
 ```
 
 
-## CI/CD with Travis
+## About the `DEBUG` variable
+
+This repo allows user to set a `DEBUG` variable to `true` or `false`
+
+Following actions happen when variable is set to `true`:
+
+* Disables push to ECS services from `master` branch
+* ENV VARS are read from local .env (not Parameter Store)
+* Sets Django App to Debug mode (See: [Django Docs](https://docs.djangoproject.com/en/2.2/ref/settings/#debug))
+* Provides lower level logging, including SQL queries for troubleshooting
+
+Following actions happen when variable is set to `false`:
+
+* Allows push to ECS services from `master` branch
+* If not in a Travis Build, will pull env vars from Parameter Store. (Travis will pull based on env vars set in Travis console)
+* Django App DEBUG set to `False`
+* Logging is restricted
+
+## Gunicorn and WhiteNoise
+
+This container uses Gunicorn as a Python WSGI HTTP Server for serving the API/data layer. A basic config file is included within this repo. It can import an additional `gunicorn_conf.py` file from your `local_settings` directory. (See: [Gunicorn Settings Docs](http://docs.gunicorn.org/en/latest/settings.html))
+
+Instead of running an additional web server for static files, we are hosting our Swagger/static assets through the use of `WhiteNoise` whith in the same server. Read [this](http://whitenoise.evans.io/en/stable/#infrequently-asked-questions) for more info on why we are choosing this configuration
+
+## PostgreSQL and Database router
+
+Project will add the `apt.postgresql.org` to source.list and install a PostgreSQL 11.2 client within container, and performs a `wait-for` script to wait for database to connect before loading application.
+
+Project will check for the `POSTGRES_NAME` variable to be set, otherwise will default to `sqlite3`
+
+Project does contain POSTGIS support as well.
+
+Additionally the Django Project contains a database router (router.py). This router allows project to connect to multiple databases. The database to connect to can then be set on a per model basis within your application using an "in_db" field.
+
+For example, let's say you have a database split into partitions, and setup each partition as a separate database in your `local_settings/settings.py`:
+
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT')
+    },
+    'multnomah_county_permits': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'OPTIONS': {
+                'options': '-c search_path=django,public,multnomah_county_permits'
+            },
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT')
+    },
+    'passenger_census': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'OPTIONS': {
+                'options': '-c search_path=django,passenger_census'
+            },
+        'NAME': os.environ.get('POSTGRES_NAME'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'HOST': os.environ.get('POSTGRES_HOST'),
+        'PORT': os.environ.get('POSTGRES_PORT')
+    }
+  }
+  ```
+
+You can then add the following to your `models.py`:
+
+```
+import django.db.models.options as options
+options.DEFAULT_NAMES = options.DEFAULT_NAMES + ('in_db',)
+```
+
+And then specify a particular model uses a specific database:
+
+```
+class AnnualCensusBlockRidership(models.Model):
+    year = models.IntegerField(blank=True, null=True)
+    census_block = models.CharField(max_length=255, blank=True, null=True)
+    total_ons = models.BigIntegerField(blank=True, null=True)
+    stops = models.BigIntegerField(blank=True, null=True)
+    geom_polygon_4326 = models.GeometryField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'annual_census_block_ridership'
+        in_db = 'passenger_census'
+```
+
+## Development of the Docker IMAGE
+
+This repo uses Travis for a CI/CD deployment of image to Docker Hub. Upon a merged pull request to the 'STAGING' branch, an image will be pushed to the `hackoregoncivic/backend-docker-django-dev` branch. This image can then be pulled for testing purposes with a live database.
+
+When files are merged to `MASTER`, image will then de deployed to the `hackoregoncivic/backend-docker-django` repo. All Hack Oregon teams should use this repo for API development as well as production use.
+
+Things to note:
+
+* Deploy/Infra scripts should be housed in the `bin` folder
+* The core Django files have been left relatively intact from generating a default project. This should allow for forward compatible code. Any updates/changes to the Django settings should be done in the `backend/hacko_settings.py` file, not the default settings.
+* The `backend/settings.py`, `backend/urls.py`, and `gunicorn_conf.py` are each configured to import their respective files from a user's `local_settings` folder. If these do not exist, then they will be passed over silently. If you change/update these files during development for any reason, be sure to keep imports at the bottom of each file.
+
+For example `backend/settings.py` imports the `hacko_settings`:
+
+```
+try:
+    from backend.hacko_settings import *
+except ImportError:
+    pass
+
+```
+
+Then `hacko_settings` will import your `local_settings/settings` (assumes you have set the `src_files` volume in your docker_compose):
+
+```
+try:
+    from src_files.local_settings.settings import *
+except ImportError:
+    pass
+```
+* Python requirements will be installed from the `requirements/common.txt`. We have been following pattern of >=current version, <next major version. This should allow robustness, and responsiveness to updates, within minimizing breaking changes. If we run into issues, we may want to pin to minor versions...

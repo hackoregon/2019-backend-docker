@@ -7,6 +7,14 @@
 # -e  Exit immediately if a command exits with a non-zero status.
 set -e
 
+# Pull in environment variables values from AWS Parameter Store, and preserve the exports
+# source usage per https://stackoverflow.com/q/14742358/452120 (iff running on travis-ci)
+echo Debug: $DEBUG
+
+if ! $DEBUG && ! $TRAVIS; then
+  source /code/bin/get-ssm-parameters.sh
+fi
+
 if [ "$POSTGRES_NAME" ]; then
   export PGPASSWORD=$POSTGRES_PASSWORD
   until psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -p "$POSTGRES_PORT" -d postgres -c '\q'
@@ -17,7 +25,7 @@ if [ "$POSTGRES_NAME" ]; then
 fi
 
 >&2 echo "Postgres is up"
-echo Debug: $DEBUG
+
 chmod +x *.py
 
 echo "Make migrations"
