@@ -3,10 +3,13 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if os.environ.get('DJANGO_SECRET_KEY'):
+    SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+else:
+    SECRET_KEY = "iLik3L@amp"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', False))
+DEBUG = (os.environ.get('DEBUG').lower() == "true")
 
 ALLOWED_HOSTS = ['*']
 
@@ -63,25 +66,27 @@ if os.environ.get('POSTGRES_NAME'):
             'HOST': os.environ.get('POSTGRES_HOST'),
             'PORT': os.environ.get('POSTGRES_PORT')
         }
-    }    
-
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-        }
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
     }
-}
+
+
+
+if DEBUG == True:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+            }
+        },
+        'loggers': {
+            'django.db.backends': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+            },
+        }
+    }
 
 #add CORS support for all domains
 CORS_ORIGIN_ALLOW_ALL = True

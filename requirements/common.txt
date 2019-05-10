@@ -13,3 +13,4 @@ django-rest-swagger>=2.2.0,<3.0
 # Gunicorn server
 
 gunicorn>=19.9.0,<20.0
+gevent>=1.4.0,<2.0.0
