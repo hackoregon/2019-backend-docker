@@ -1,0 +1,20 @@
+version: '3.4'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hackoregoncivic/backend-docker-django-dev
+    command: ./bin/docker-entrypoint.sh
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=${DEBUG}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_NAME=${POSTGRES_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
