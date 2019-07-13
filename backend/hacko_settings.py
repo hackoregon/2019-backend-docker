@@ -9,7 +9,7 @@ else:
     SECRET_KEY = "iLik3L@amp"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ.get('DEBUG').lower() == "true")
+DEBUG = (os.environ.get('DEBUG', 'false').lower() == "true")
 
 ALLOWED_HOSTS = ['*']
 
