@@ -24,8 +24,17 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'rest_framework',
-    'rest_framework_swagger'
+    'rest_framework_swagger',
+    'health_check',                             # required
+    'health_check.db',                          # stock Django health checkers
+    'health_check.storage',
+    'health_check.contrib.psutil',              # disk and memory utilization; requires psutil
 ]
+
+HEALTH_CHECK = {
+    'DISK_USAGE_MAX': 90,  # percent
+    'MEMORY_MIN': 100,    # in MB
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
