@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url, include
 
 try:
     from src_files.local_settings.urls import *
 except ImportError:
     urlpatterns = [
         path('admin/', admin.site.urls),
+        url(r'^health/', include('health_check.urls')),
     ]
