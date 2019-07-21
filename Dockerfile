@@ -15,6 +15,8 @@ RUN apt-get update \
     gdal-bin \
     libproj-dev \
     postgresql-client-11 \
+    awscli \
+    jq \
   && apt-get clean
 
 # create and populate /code
