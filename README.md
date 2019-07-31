@@ -1,8 +1,9 @@
 # Hack Oregon 2019 Backend Docker - Django
 
-Staging (Development): [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=staging)](https://travis-ci.org/hackoregon/2019-backend-docker)
-
-Master (Production): [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=master)](https://travis-ci.org/hackoregon/2019-backend-docker)
+|Build|Travis|DockerHub|
+|-|-|-|
+| Staging (Development) | [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=staging)](https://travis-ci.org/hackoregon/2019-backend-docker) | [![](https://images.microbadger.com/badges/version/hackoregoncivic/backend-docker-django-dev.svg)](https://microbadger.com/images/hackoregoncivic/backend-docker-django-dev "Get your own version badge on microbadger.com") |
+| Master (Production) | [![Build Status](https://travis-ci.org/hackoregon/2019-backend-docker.svg?branch=master)](https://travis-ci.org/hackoregon/2019-backend-docker) | [![](https://images.microbadger.com/badges/version/hackoregoncivic/backend-docker-django.svg)](https://microbadger.com/images/hackoregoncivic/backend-docker-django "Get your own version badge on microbadger.com") |
 
 This repository contains the source files for the Docker Image for the 2019 Hack Oregon Season.
 
