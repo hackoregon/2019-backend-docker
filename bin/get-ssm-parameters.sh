@@ -4,7 +4,7 @@
 # Depends on pre-installed awscli
 
 # Modelled on https://aws.amazon.com/blogs/compute/managing-secrets-for-amazon-ecs-applications-using-parameter-store-and-iam-roles-for-tasks/
-
+echo "hello docker"
 # TODO:
 # 1. determine the values of the prefixes for each of the Parameter Store parameters (e.g. /production/2018/) that pass into the --names flag
 # 2. echo out the parameter values so they can be used by the container apps
