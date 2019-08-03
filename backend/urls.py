@@ -19,7 +19,9 @@ from django.conf.urls import url, include
 
 try:
     from src_files.local_settings.urls import *
-except ImportError:
+except ImportError as error:
+    # Output expected ImportErrors.
+    print(error.__class__.__name__ + ": " + error.message)
     urlpatterns = [
         path('admin/', admin.site.urls),
         url(r'^health/', include('health_check.urls')),
