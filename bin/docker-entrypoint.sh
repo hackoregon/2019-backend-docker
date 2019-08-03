@@ -11,6 +11,9 @@ set -e
 # source usage per https://stackoverflow.com/q/14742358/452120 (iff running on travis-ci)
 echo Debug: $DEBUG
 
+if [ -z ${DEBUG+x} ]; then echo "var is unset"; else echo "var is set to '$var'"; fi
+
+
 if ! $DEBUG && ! $TRAVIS; then
   source /code/bin/get-ssm-parameters.sh
 fi

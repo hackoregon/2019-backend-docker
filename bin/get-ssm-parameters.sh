@@ -3,9 +3,6 @@
 # Pulls in HackO API env var values as parameters from AWS Parameter Store
 # Depends on pre-installed awscli
 
-env
-echo "hi docker"
-
 # Modelled on https://aws.amazon.com/blogs/compute/managing-secrets-for-amazon-ecs-applications-using-parameter-store-and-iam-roles-for-tasks/
 
 # TODO:
