@@ -21,7 +21,7 @@ try:
     from src_files.local_settings.urls import *
 except ImportError as error:
     # Output expected ImportErrors.
-    print(error.__class__.__name__ + ": " + error.message)
+    print(error.__class__.__name__ + ": " + str(error))
     urlpatterns = [
         path('admin/', admin.site.urls),
         url(r'^health/', include('health_check.urls')),
