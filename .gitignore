@@ -103,8 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-/staticfiles
-
 **.sqlite3
 
 **.DS_Store
