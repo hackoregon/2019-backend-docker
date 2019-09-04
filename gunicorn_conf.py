@@ -21,6 +21,8 @@
 bind = ':8000'
 backlog = 2048
 
+forwarded_allow_ips = '*'
+
 #
 # Worker processes
 #
