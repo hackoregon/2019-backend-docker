@@ -76,7 +76,7 @@ try:
     # setting this inside the 'try' ensures that we only
     # activate the gevent worker pool if we have gevent installed
     # See: https://github.com/hackoregon/civic-devops/issues/271 regarding gevent/multiple worker usage
-    
+
     worker_class = 'gevent'
     workers = 4
     # this ensures forked processes are patched with gevent/gevent-psycopg2
@@ -97,7 +97,10 @@ except ImportError:
 
 # worker_connections = 1000
 timeout = 60
-# keepalive = 2
+
+# Setting keepalive to higher value as per https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/ts-elb-error-message.html#ts-elb-errorcodes-http504
+# See issue: https://github.com/hackoregon/civic-devops/issues/272
+keepalive = 75
 
 #
 #   spew - Install a trace function that spews every line of Python
