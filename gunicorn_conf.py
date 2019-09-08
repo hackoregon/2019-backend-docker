@@ -21,6 +21,7 @@
 bind = ':8000'
 backlog = 2048
 
+## added 9/2019,due to allowing frontend swagger/docs sites to properly access https connections: https://github.com/hackoregon/2019-transportation-systems-backend/issues/63
 forwarded_allow_ips = '*'
 
 #
@@ -72,9 +73,10 @@ try:
     from gevent import monkey
     from psycogreen.gevent import patch_psycopg
 
-
     # setting this inside the 'try' ensures that we only
     # activate the gevent worker pool if we have gevent installed
+    # See: https://github.com/hackoregon/civic-devops/issues/271 regarding gevent/multiple worker usage
+    
     worker_class = 'gevent'
     workers = 4
     # this ensures forked processes are patched with gevent/gevent-psycopg2
@@ -87,6 +89,10 @@ try:
 
     post_fork = do_post_fork
 except ImportError:
+    def do_post_fork(server, worker):
+        # log statement when gevent not present, fallback runs single sync worker
+        worker.log.info("Gevent unavailable starting sync worker")
+    post_fork = do_post_fork
     pass
 
 # worker_connections = 1000
